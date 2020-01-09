@@ -1,97 +1,33 @@
 import React from "react";
-import { render } from "react-dom";
-import { Router } from "@reach/router";
-import pf from "petfinder-client";
-import Loadable from "react-loadable";
-import { Provider } from "./SearchContext";
-import NavBar from "./NavBar";
-import { Provider as ReduxProvider } from "react-redux";
+import { Router, Link } from "@reach/router";
+import { Provider } from "react-redux";
 import store from "./store";
+import Results from "./Results";
+import Details from "./Details";
+import SearchParams from "./SearchParams";
 
-const petfinder = pf({
-  key: process.env.API_KEY,
-  secret: process.env.API_SECRET
-});
-
-const LoadableDetails = Loadable({
-  loader: () => import("./Details"),
-  loading() {
-    return <h1>loading split out code ...</h1>;
-  }
-});
-
-const LoadableResults = Loadable({
-  loader: () => import("./Results"),
-  loading() {
-    return <h1>loading split out code ...</h1>;
-  }
-});
-
-const LoadableSearchParams = Loadable({
-  loader: () => import("./SearchParams"),
-  loading() {
-    return <h1>loading split out code ...</h1>;
-  }
-});
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      animal: "",
-      breed: "",
-      breeds: [],
-      handleAnimalChange: this.handleAnimalChange,
-      handleBreedChange: this.handleBreedChange,
-      getBreeds: this.getBreeds
-    };
-  }
-  handleAnimalChange = event => {
-    this.setState(
-      {
-        animal: event.target.value,
-        breed: ""
-      },
-      this.getBreeds
-    );
-  };
-  handleBreedChange = event => {
-    this.setState({
-      breed: event.target.value
-    });
-  };
-  getBreeds() {
-    if (this.state.animal) {
-      petfinder.breed.list({ animal: this.state.animal }).then(data => {
-        if (
-          data.petfinder &&
-          data.petfinder.breeds &&
-          Array.isArray(data.petfinder.breeds.breed)
-        ) {
-          this.setState({
-            breeds: data.petfinder.breeds.breed
-          });
-        }
-      });
-    } else {
-      this.setState({ breeds: [] });
-    }
-  }
   render() {
     return (
-      <div>
-        <NavBar />\
-        <ReduxProvider store={store}>
-          <Provider value={this.state}>
-            <Router>
-              <LoadableResults path="/" />
-              <LoadableDetails path="/details/:id" />
-              <LoadableSearchParams path="/search-params" />
-            </Router>
-          </Provider>
-        </ReduxProvider>
-      </div>
+      <Provider store={store}>
+        <div>
+          <header>
+            <Link to="/">Adopt Me!</Link>
+            <Link to="/search-params">
+              <span aria-label="search" role="img">
+                🔍
+              </span>
+            </Link>
+          </header>
+          <Router>
+            <Results path="/" />
+            <Details path="/details/:id" />
+            <SearchParams path="/search-params" />
+          </Router>
+        </div>
+      </Provider>
     );
   }
 }
 
-render(<App />, document.getElementById("root"));
+export default App;
