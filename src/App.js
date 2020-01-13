@@ -1,5 +1,6 @@
 import React from "react";
 import { Router, Link } from "@reach/router";
+import { render } from "react-dom";
 import { Provider } from "react-redux";
 import store from "./store";
 import Results from "./Results";
@@ -30,4 +31,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+render(<App />, document.getElementById("root"));
